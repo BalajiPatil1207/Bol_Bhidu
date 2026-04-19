@@ -113,19 +113,26 @@ export const logout = (_, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { profilePic } = req.body;
-    if (!profilePic) {
-      return handle400(res, "Profile pic is required");
-    }
-
     const userId = req.user._id;
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    let updatedData = {};
+
+    if (profilePic === null || profilePic === "") {
+      // Clear profile pic
+      updatedData = { profilePic: "" };
+    } else if (profilePic) {
+      // Upload new pic
+      const uploadResponse = await cloudinary.uploader.upload(profilePic);
+      updatedData = { profilePic: uploadResponse.secure_url };
+    } else {
+      return handle400(res, "Profile pic data or clear command is required");
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      updatedData,
       { new: true }
-    );
+    ).select("-password");
 
     return handle200(res, updatedUser, "Profile updated successfully");
 

@@ -46,18 +46,18 @@ function MessageInput() {
   };
 
   return (
-    <div className="p-4 border-t border-slate-700/50">
+    <div className="px-4 py-3 bg-[#0b141a]">
       {imagePreview && (
-        <div className="max-w-3xl mx-auto mb-3 flex items-center">
+        <div className="mb-3 flex items-center">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-slate-700"
+              className="w-20 h-20 object-cover rounded-lg border border-[#202c33]"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 hover:bg-slate-700"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#111b21] flex items-center justify-center text-[#e9edef] hover:bg-[#202c33]"
               type="button"
             >
               <XIcon className="w-4 h-4" />
@@ -66,41 +66,42 @@ function MessageInput() {
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex space-x-4">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            isSoundEnabled && playRandomKeyStrokeSound();
-          }}
-          className="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-lg py-2 px-4 text-slate-200"
-          placeholder="Type your message..."
-        />
+      <form onSubmit={handleSendMessage} className="flex items-end gap-2">
+        <div className="flex-1 flex items-center gap-2 bg-[#202c33] rounded-[24px] px-4 py-1.5 min-h-[48px]">
+          <button
+            type="button"
+            className="text-[#8696a0] hover:text-[#e9edef] p-1"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <ImageIcon className="size-6" />
+          </button>
 
-        <input
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          className="hidden"
-        />
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              isSoundEnabled && playRandomKeyStrokeSound();
+            }}
+            className="flex-1 bg-transparent border-none text-[#e9edef] placeholder-[#8696a0] focus:ring-0 text-[15px] outline-none"
+            placeholder="Type a message"
+          />
 
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className={`bg-slate-800/50 text-slate-400 hover:text-slate-200 rounded-lg px-4 transition-colors ${
-            imagePreview ? "text-cyan-500" : ""
-          }`}
-        >
-          <ImageIcon className="w-5 h-5" />
-        </button>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg px-4 py-2 font-medium hover:from-cyan-600 hover:to-cyan-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="size-[48px] bg-[#00a884] hover:bg-[#06cf9c] text-white rounded-full flex items-center justify-center transition-all shadow-md disabled:bg-[#3b4a54] disabled:text-[#8696a0] shrink-0"
         >
-          <SendIcon className="w-5 h-5" />
+          <SendIcon className="size-5 fill-current" />
         </button>
       </form>
     </div>

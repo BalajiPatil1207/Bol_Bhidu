@@ -12,23 +12,21 @@ function ChatPage() {
   const { activeTab, selectedUser } = useChatStore();
 
   return (
-    <div className="relative w-full max-w-6xl h-[800px]">
-      <BorderAnimatedContainer>
-        {/* LEFT SIDE */}
-        <div className="w-80 bg-slate-800/50 backdrop-blur-sm flex flex-col">
-          <ProfileHeader />
-          <ActiveTabSwitch />
+    <div className="h-[calc(100vh-2rem)] w-full max-w-6xl mx-auto overflow-hidden bg-[#0b141a] md:rounded-xl shadow-2xl flex">
+      {/* SIDEBAR - Visible always on desktop, visible on mobile only if no user selected */}
+      <div className={`w-full md:w-80 flex-col border-r border-white/5 bg-[#111b21] ${selectedUser ? "hidden md:flex" : "flex"}`}>
+        <ProfileHeader />
+        <ActiveTabSwitch />
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
-            {activeTab === "chats" ? <ChatsList /> : <ContactList />}
-          </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {activeTab === "chats" ? <ChatsList /> : <ContactList />}
         </div>
+      </div>
 
-        {/* RIGHT SIDE */}
-        <div className="flex-1 flex flex-col bg-slate-900/50 backdrop-blur-sm">
-          {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
-        </div>
-      </BorderAnimatedContainer>
+      {/* CHAT AREA - Visible always on desktop, visible on mobile only if user selected */}
+      <div className={`flex-1 flex flex-col bg-[#0b141a] ${!selectedUser ? "hidden md:flex" : "flex"}`}>
+        {selectedUser ? <ChatContainer /> : <NoConversationPlaceholder />}
+      </div>
     </div>
   );
 }

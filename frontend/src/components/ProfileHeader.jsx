@@ -27,24 +27,47 @@ function ProfileHeader() {
   };
 
   return (
-    <div className="p-6 border-b border-slate-700/50">
+    <div className="p-4 border-b border-white/5 bg-[#111b21]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* AVATAR */}
           <div className="avatar online">
-            <button
+            <div
               className="size-14 rounded-full overflow-hidden relative group"
-              onClick={() => fileInputRef.current.click()}
             >
               <img
                 src={selectedImg || authUser.profilePic || "/avatar.png"}
                 alt="User image"
                 className="size-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                <span className="text-white text-xs">Change</span>
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all duration-300 gap-2">
+                <button
+                  type="button"
+                  className="text-white text-xs hover:text-cyan-400 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current.click();
+                  }}
+                >
+                  Change
+                </button>
+                {authUser.profilePic && (
+                  <button
+                    type="button"
+                    className="text-red-400 text-xs hover:text-red-300 transition-colors flex items-center gap-1"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (window.confirm("Remove profile photo?")) {
+                        setSelectedImg(null);
+                        await updateProfile({ profilePic: "" });
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
-            </button>
+            </div>
 
             <input
               type="file"
