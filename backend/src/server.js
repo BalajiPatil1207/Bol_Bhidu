@@ -7,13 +7,12 @@ import helmet from "helmet";
 
 import { connectDB } from "./config/db.js";
 import { ENV } from "./lib/env.js";
+import { app, server } from "./lib/socket.js";
 
 import authRoutes from "./routes/auth.js";
 import messageRoutes from "./routes/message.js";
 
 dotenv.config();
-
-const app = express();
 
 app.use(helmet());
 app.use(
@@ -32,14 +31,15 @@ const PORT = process.env.PORT || 3000;
 
 // =====  Routes  =====
 app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/message", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname,"../frontend/dist")))
+    app.use(express.static(path.join(__dirname,"../frontend/dist")));
 
     app.get("*",(req,res)=>{
-        res.sendFile(path.join(__dirname,"../frontend","dist","index.html"))
-    })
+        res.sendFile(path.join(__dirname,"../frontend","dist","index.html"));
+    });
 }
 
 // Global Error Handler
@@ -50,7 +50,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port: http://localhost:${PORT}`);
   connectDB();
 });

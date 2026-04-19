@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import { axiosInstance, getErrorMessage, getResponseData } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
 
@@ -24,10 +24,10 @@ export const useChatStore = create((set, get) => ({
   getAllContacts: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/messages/contacts");
-      set({ allContacts: res.data });
+      const res = await axiosInstance.get("/messages/users");
+      set({ allContacts: getResponseData(res) || [] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(getErrorMessage(error));
     } finally {
       set({ isUsersLoading: false });
     }
@@ -35,10 +35,10 @@ export const useChatStore = create((set, get) => ({
   getMyChatPartners: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/messages/chats");
-      set({ chats: res.data });
+      const res = await axiosInstance.get("/messages/partners");
+      set({ chats: getResponseData(res) || [] });
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(getErrorMessage(error));
     } finally {
       set({ isUsersLoading: false });
     }
@@ -48,9 +48,9 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
+      set({ messages: getResponseData(res) || [] });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(getErrorMessage(error));
     } finally {
       set({ isMessagesLoading: false });
     }
@@ -76,11 +76,14 @@ export const useChatStore = create((set, get) => ({
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: messages.concat(res.data) });
+      const savedMessage = getResponseData(res);
+      set({
+        messages: get().messages.map((message) => (message._id === tempId ? savedMessage : message)),
+      });
     } catch (error) {
       // remove optimistic message on failure
       set({ messages: messages });
-      toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(getErrorMessage(error));
     }
   },
 
@@ -89,6 +92,9 @@ export const useChatStore = create((set, get) => ({
     if (!selectedUser) return;
 
     const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("newMessage");
 
     socket.on("newMessage", (newMessage) => {
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;

@@ -1,30 +1,27 @@
-// middleware/authMiddleware.js
-import { verifyToken } from '../helper/authHelper.js';
-import { handle401 } from '../helper/errorHandler.js';
+import { verifyToken } from "../helper/authHelper.js";
+import { handle401 } from "../helper/errorHandler.js";
+import User from "../models/User.js";
 
-/**
- * Authentication Middleware
- * Checks for JWT token in Authorization header
- */
-export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+export const authenticateToken = async (req, res, next) => {
+  const bearerToken = req.headers.authorization?.startsWith("Bearer ")
+    ? req.headers.authorization.split(" ")[1]
+    : null;
+  const token = bearerToken || req.cookies?.jwt;
+
+  if (!token) {
     return handle401(res, "No token provided");
   }
 
-  const token = authHeader.split(" ")[1]; // Bearer <token>
-
-  if (!token) {
-    return handle401(res, "No token provided, access denied");
-  }
-
   const decoded = verifyToken(token);
-
-  if (!decoded) {
+  if (!decoded?.userId) {
     return handle401(res, "Invalid or expired token");
   }
 
-  // Attach user data to request object
-  req.user = decoded;
+  const user = await User.findById(decoded.userId).select("-password");
+  if (!user) {
+    return handle401(res, "User not found");
+  }
+
+  req.user = user;
   next();
 };
