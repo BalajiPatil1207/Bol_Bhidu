@@ -1,4 +1,5 @@
 import { resendClient, sender } from "../lib/resend.js";
+import { createWelcomeEmailTemplate } from "./emailTemplates.js";
 
 /**
  * Sends a welcome email to a new user
@@ -11,12 +12,8 @@ export const sendWelcomeEmail = async (email, name, clientUrl) => {
     const response = await resendClient.emails.send({
       from: `${sender.name} <${sender.email}>`,
       to: [email],
-      subject: "Welcome to Chat App",
-      html: `
-        <h1>Welcome, ${name}!</h1>
-        <p>Thank you for joining our Chat Application.</p>
-        <p>Click <a href="${clientUrl}">here</a> to start chatting!</p>
-      `,
+      subject: "Welcome to Messenger",
+      html: createWelcomeEmailTemplate(name, clientUrl),
     });
     return response;
   } catch (error) {

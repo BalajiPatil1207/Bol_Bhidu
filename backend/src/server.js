@@ -1,20 +1,37 @@
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import helmet from "helmet";
+
+import { connectDB } from "./config/db.js";
+import { ENV } from "./lib/env.js";
+
+import authRoutes from "./routes/auth.js";
+import messageRoutes from "./routes/message.js";
 
 dotenv.config();
 
 const app = express();
+
+app.use(helmet());
+app.use(
+  cors({
+    origin: ENV.CLIENT_URL,
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "5mb" }));
+app.use(cookieParser());
 
 const __dirname = path.resolve();
 
 const PORT = process.env.PORT || 3000;
 
 // =====  Routes  =====
-import authRoutes from "./routes/auth.js";
 app.use("/api/auth", authRoutes);
-
-import messageRoutes from "./routes/message.js";
 app.use("/api/message", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
@@ -25,6 +42,15 @@ if (process.env.NODE_ENV === "production") {
     })
 }
 
-app.listen(PORT, () =>
-  console.log(`Server running on port: http://localhost:${PORT}`),
-);
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error("Unhandle Error:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port: http://localhost:${PORT}`);
+  connectDB();
+});

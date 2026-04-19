@@ -3,11 +3,9 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 import { handle200, handle201 } from "../helper/successHandler.js";
-import { formatMongooseError, handle404 } from "../helper/errorHandler.js";
+import { formatMongooseError, handle404, handle400 } from "../helper/errorHandler.js";
 
-/**
- * Get all available contacts (excluding self)
- */
+
 export const getAllContacts = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
@@ -20,9 +18,7 @@ export const getAllContacts = async (req, res) => {
   }
 };
 
-/**
- * Get messages between current user and another user
- */
+
 export const getMessagesByUserId = async (req, res) => {
   try {
     const myId = req.user._id;
@@ -42,9 +38,6 @@ export const getMessagesByUserId = async (req, res) => {
   }
 };
 
-/**
- * Send a message
- */
 export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
@@ -66,7 +59,6 @@ export const sendMessage = async (req, res) => {
 
     let imageUrl;
     if (image) {
-      // upload base64 image to cloudinary
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
     }
@@ -92,14 +84,11 @@ export const sendMessage = async (req, res) => {
   }
 };
 
-/**
- * Get users with whom the current user has chatted
- */
+
 export const getChatPartners = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
 
-    // find all the messages where the logged-in user is either sender or receiver
     const messages = await Message.find({
       $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
     });
