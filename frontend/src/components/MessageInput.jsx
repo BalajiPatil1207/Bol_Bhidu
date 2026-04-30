@@ -74,52 +74,54 @@ function MessageInput() {
   };
 
   return (
-    <div className="px-4 py-3 bg-[#0b141a]">
+    <div className="px-3 py-3 md:px-4 md:py-4 glass-navbar bg-transparent border-none">
       {imagePreview && (
-        <div className="mb-3 flex items-center">
-          <div className="relative">
+        <div className="mb-4 flex items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="relative glass-card p-1.5 rounded-2xl shadow-2xl">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-[#202c33]"
+              className="w-24 h-24 object-cover rounded-xl"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#111b21] flex items-center justify-center text-[#e9edef] hover:bg-[#202c33]"
+              className="absolute -top-3 -right-3 size-7 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 active:scale-90 transition-all"
               type="button"
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon className="size-4" />
             </button>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-end gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-[#202c33] rounded-[24px] px-4 py-1.5 min-h-[48px] relative">
+      <form onSubmit={handleSendMessage} className="flex items-end gap-2.5 max-w-5xl mx-auto">
+        <div className="flex-1 flex items-center gap-1.5 bg-[#202c33] rounded-[28px] px-2.5 py-1.5 md:px-4 min-h-[52px] relative shadow-lg ring-1 ring-white/5 focus-within:ring-emerald-500/30 transition-all">
           <button
             type="button"
-            className={`transition-colors ${showEmojiPicker ? "text-[#00a884]" : "text-[#8696a0] hover:text-[#e9edef]"}`}
+            className={`p-2 rounded-full transition-all duration-300 ${showEmojiPicker ? "bg-emerald-500/10 text-emerald-500 scale-110" : "text-slate-400 hover:text-slate-200"}`}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
             <Smile className="size-6" />
           </button>
 
           {showEmojiPicker && (
-            <div className="absolute bottom-[100%] left-0 mb-4 z-50">
-              <EmojiPicker 
-                onEmojiClick={onEmojiClick} 
-                theme="dark"
-                skinTonesDisabled
-                searchDisabled={false}
-                width={300}
-                height={400}
-              />
+            <div className="absolute bottom-[110%] left-0 z-50 animate-in fade-in zoom-in-95 duration-200 origin-bottom-left">
+              <div className="shadow-2xl rounded-2xl overflow-hidden glass-card border-none">
+                <EmojiPicker 
+                  onEmojiClick={onEmojiClick} 
+                  theme="dark"
+                  skinTonesDisabled
+                  searchDisabled={false}
+                  width={320}
+                  height={400}
+                />
+              </div>
             </div>
           )}
 
           <button
             type="button"
-            className="text-[#8696a0] hover:text-[#e9edef] p-1"
+            className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
             onClick={() => fileInputRef.current?.click()}
           >
             <ImageIcon className="size-6" />
@@ -129,8 +131,8 @@ function MessageInput() {
             type="text"
             value={text}
             onChange={handleInputChange}
-            className="flex-1 bg-transparent border-none text-[#e9edef] placeholder-[#8696a0] focus:ring-0 text-[15px] outline-none"
-            placeholder="Type a message"
+            className="flex-1 bg-transparent border-none text-slate-100 placeholder-slate-500 focus:ring-0 text-[16px] outline-none py-2"
+            placeholder="Type a message..."
           />
 
           <input
@@ -145,9 +147,9 @@ function MessageInput() {
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className="size-[48px] bg-[#00a884] hover:bg-[#06cf9c] text-white rounded-full flex items-center justify-center transition-all shadow-md disabled:bg-[#3b4a54] disabled:text-[#8696a0] shrink-0"
+          className="size-[52px] bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center transition-all shadow-xl shadow-emerald-500/20 active:scale-90 disabled:bg-slate-700 disabled:text-slate-500 disabled:shadow-none shrink-0"
         >
-          <SendIcon className="size-5 fill-current" />
+          <SendIcon className={`size-5 ml-0.5 transition-transform ${text.trim() || imagePreview ? "translate-x-0.5 -translate-y-0.5 rotate-[45deg]" : ""}`} />
         </button>
       </form>
     </div>

@@ -27,55 +27,72 @@ function ChatHeader() {
 
   return (
     <div
-      className="flex justify-between items-center bg-[#202c33] border-b
-   border-white/5 min-h-[70px] px-4"
+      className="flex justify-between items-center glass-header px-4 min-h-[72px]"
     >
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center gap-3">
         {/* Mobile Back Button */}
         <button
           onClick={() => setSelectedUser(null)}
-          className="md:hidden text-slate-400 hover:text-slate-200"
+          className="md:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="size-6" />
         </button>
 
-        <div className={`avatar ${isOnline ? "online" : "offline"}`}>
-          <div className="w-12 rounded-full">
-            <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} />
+        <div className="relative group">
+          <div className="size-11 rounded-full overflow-hidden border-2 border-emerald-500/20 shadow-lg">
+            <img 
+              src={selectedUser.profilePic || "/avatar.png"} 
+              alt={selectedUser.fullName} 
+              className="size-full object-cover"
+            />
           </div>
+          {isOnline && (
+            <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-[#00a884] border-2 border-[#111b21] rounded-full" />
+          )}
         </div>
 
         <div>
-          <h3 className="text-slate-200 font-medium">{selectedUser.fullName}</h3>
+          <h3 className="text-slate-100 font-bold text-sm tracking-tight leading-none mb-1.5">
+            {selectedUser.fullName}
+          </h3>
           {isTyping ? (
-            <p className="text-cyan-500 text-sm font-medium animate-pulse">typing...</p>
+            <p className="text-[#00a884] text-[10px] font-bold uppercase tracking-widest animate-pulse">
+              Typing...
+            </p>
           ) : (
-            <p className="text-slate-400 text-sm">{isOnline ? "Online" : "Offline"}</p>
+            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+              {isOnline ? "Online" : "Offline"}
+            </p>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {/* Call Buttons */}
         <div className="flex items-center space-x-1">
           <button
             onClick={() => handleCallUser(selectedUser._id, "audio")}
-            className="p-2 hover:bg-white/5 rounded-full text-slate-400 hover:text-cyan-500 transition-colors"
+            className="p-2.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
             title="Audio Call"
           >
-            <Phone className="w-5 h-5" />
+            <Phone className="size-5" />
           </button>
           <button
             onClick={() => handleCallUser(selectedUser._id, "video")}
-            className="p-2 hover:bg-white/5 rounded-full text-slate-400 hover:text-cyan-500 transition-colors"
+            className="p-2.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
             title="Video Call"
           >
-            <Video className="w-5 h-5" />
+            <Video className="size-5" />
           </button>
         </div>
 
-        <button onClick={() => setSelectedUser(null)}>
-          <XIcon className="w-5 h-5 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer" />
+        <div className="hidden md:block w-[1px] h-6 bg-white/5 mx-1" />
+
+        <button 
+          onClick={() => setSelectedUser(null)}
+          className="hidden md:flex p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition-all"
+        >
+          <XIcon className="size-5" />
         </button>
       </div>
     </div>
