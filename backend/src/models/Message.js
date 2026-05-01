@@ -10,7 +10,12 @@ const messageSchema = new mongoose.Schema(
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
+    },
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+      required: false,
     },
     text: {
       type: String,
@@ -20,10 +25,39 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    audio: {
+      type: String,
+    },
     cloudinaryId: {
       type: String,
     },
+    audioCloudinaryId: {
+      type: String,
+    },
+    file: {
+      type: String,
+    },
+    fileType: {
+      type: String,
+    },
+    fileCloudinaryId: {
+      type: String,
+    },
     isSeen: {
+      type: Boolean,
+      default: false,
+    },
+    reactions: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        emoji: { type: String },
+      },
+    ],
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+    isDeleted: {
       type: Boolean,
       default: false,
     },

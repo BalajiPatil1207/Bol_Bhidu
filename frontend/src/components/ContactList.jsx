@@ -3,7 +3,7 @@ import { useChatStore } from "../store/useChatStore";
 import UsersLoadingSkeleton from "./UsersLoadingSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 
-function ContactList() {
+function ContactList({ searchQuery = "" }) {
   const { getAllContacts, allContacts, setSelectedUser, isUsersLoading, selectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
@@ -13,9 +13,15 @@ function ContactList() {
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
 
+  const filteredContacts = allContacts.filter(contact => 
+    contact.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (filteredContacts.length === 0) return <div className="p-4 text-center text-sm text-[var(--text-muted)]">No contacts match "{searchQuery}"</div>;
+
   return (
     <>
-      {allContacts.map((contact) => (
+      {filteredContacts.map((contact) => (
         <div
           key={contact._id}
           className={`p-3.5 rounded-2xl cursor-pointer transition-all flex items-center gap-3.5 group relative ${

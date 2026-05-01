@@ -40,12 +40,12 @@ export const getMessagesByUserId = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text, image, audio, file } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    if (!text && !image) {
-      return handle400(res, "Text or image is required.");
+    if (!text && !image && !audio && !file) {
+      return handle400(res, "Text, image, audio or file is required.");
     }
 
     if (senderId.equals(receiverId)) {
@@ -65,12 +65,42 @@ export const sendMessage = async (req, res) => {
       cloudinaryId = uploadResponse.public_id;
     }
 
+    let audioUrl;
+    let audioCloudinaryId;
+    if (audio) {
+      const uploadResponse = await cloudinary.uploader.upload(audio, {
+        resource_type: "video", // Cloudinary treats audio as video resource type
+        folder: "voice_messages"
+      });
+      audioUrl = uploadResponse.secure_url;
+      audioCloudinaryId = uploadResponse.public_id;
+    }
+
+    let fileUrl;
+    let fileType;
+    let fileCloudinaryId;
+    if (file) {
+        const uploadResponse = await cloudinary.uploader.upload(file, {
+            resource_type: "raw",
+            folder: "documents"
+        });
+        fileUrl = uploadResponse.secure_url;
+        fileCloudinaryId = uploadResponse.public_id;
+        // Extract type from base64 if needed, or just let client send it. 
+        // For now, assume it's part of messageData from frontend.
+    }
+
     const newMessage = new Message({
       senderId,
       receiverId,
       text,
       image: imageUrl,
+      audio: audioUrl,
+      file: fileUrl,
+      fileType: req.body.fileType,
       cloudinaryId,
+      audioCloudinaryId,
+      fileCloudinaryId,
     });
 
     await newMessage.save();
@@ -184,6 +214,127 @@ export const markMessagesAsSeen = async (req, res) => {
     return handle200(res, null, "Messages marked as seen");
   } catch (error) {
     console.error("Error in markMessagesAsSeen:", error);
+    return formatMongooseError(res, error);
+  }
+};
+
+export const toggleReaction = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+    if (!message) return handle404(res, "Message not found");
+
+    // Check if user already reacted with THIS emoji
+    const existingReactionIndex = message.reactions.findIndex(
+      (r) => r.userId.toString() === userId.toString() && r.emoji === emoji
+    );
+
+    if (existingReactionIndex > -1) {
+      // Remove reaction
+      message.reactions.splice(existingReactionIndex, 1);
+    } else {
+      // Add reaction (remove any existing reaction from this user first if you want only one reaction per user)
+      // For now, let's allow multiple different emojis from same user, or just one? 
+      // Let's do one reaction per user for simplicity (like WhatsApp)
+      const userPrevReactionIndex = message.reactions.findIndex(
+        (r) => r.userId.toString() === userId.toString()
+      );
+      if (userPrevReactionIndex > -1) {
+        message.reactions.splice(userPrevReactionIndex, 1);
+      }
+      message.reactions.push({ userId, emoji });
+    }
+
+    await message.save();
+
+    // Emit event
+    if (message.groupId) {
+      io.to(message.groupId.toString()).emit("messageReaction", { messageId, reactions: message.reactions });
+    } else {
+      const receiverSocketId = getReceiverSocketId(message.receiverId);
+      const senderSocketId = getReceiverSocketId(message.senderId);
+      
+      if (receiverSocketId) io.to(receiverSocketId).emit("messageReaction", { messageId, reactions: message.reactions });
+      if (senderSocketId) io.to(senderSocketId).emit("messageReaction", { messageId, reactions: message.reactions });
+    }
+
+    return handle200(res, message.reactions, "Reaction toggled");
+  } catch (error) {
+    console.error("Error in toggleReaction:", error);
+    return formatMongooseError(res, error);
+  }
+};
+
+export const editMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { text } = req.body;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+    if (!message) return handle404(res, "Message not found");
+
+    if (message.senderId.toString() !== userId.toString()) {
+      return handle400(res, "You can only edit your own messages");
+    }
+
+    message.text = text;
+    message.isEdited = true;
+    await message.save();
+
+    // Emit event
+    const payload = { messageId, text, isEdited: true };
+    if (message.groupId) {
+      io.to(message.groupId.toString()).emit("updateMessage", payload);
+    } else {
+      const receiverSocketId = getReceiverSocketId(message.receiverId);
+      const senderSocketId = getReceiverSocketId(message.senderId);
+      if (receiverSocketId) io.to(receiverSocketId).emit("updateMessage", payload);
+      if (senderSocketId) io.to(senderSocketId).emit("updateMessage", payload);
+    }
+
+    return handle200(res, message, "Message edited");
+  } catch (error) {
+    console.error("Error in editMessage:", error);
+    return formatMongooseError(res, error);
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+    if (!message) return handle404(res, "Message not found");
+
+    if (message.senderId.toString() !== userId.toString()) {
+      return handle400(res, "You can only delete your own messages");
+    }
+
+    message.isDeleted = true;
+    message.text = "This message was deleted";
+    message.image = null;
+    message.audio = null;
+    await message.save();
+
+    // Emit event
+    const payload = { messageId, isDeleted: true };
+    if (message.groupId) {
+      io.to(message.groupId.toString()).emit("updateMessage", payload);
+    } else {
+      const receiverSocketId = getReceiverSocketId(message.receiverId);
+      const senderSocketId = getReceiverSocketId(message.senderId);
+      if (receiverSocketId) io.to(receiverSocketId).emit("updateMessage", payload);
+      if (senderSocketId) io.to(senderSocketId).emit("updateMessage", payload);
+    }
+
+    return handle200(res, message, "Message deleted");
+  } catch (error) {
+    console.error("Error in deleteMessage:", error);
     return formatMongooseError(res, error);
   }
 };

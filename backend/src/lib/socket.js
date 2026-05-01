@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { socketAuthMiddleware } from "../middleware/socketAuthMiddleware.js";
+import User from "../models/User.js";
 
 const userSocketMap = {}; 
 
@@ -23,10 +24,17 @@ export function initializeSocket(server, allowedOrigins) {
 
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       // console.log("A user disconnected", socket.user.fullName);
       delete userSocketMap[userId];
       io.emit("getOnlineUsers", Object.keys(userSocketMap));
+      
+      // Update last seen in DB
+      try {
+        await User.findByIdAndUpdate(userId, { lastSeen: new Date() });
+      } catch (error) {
+        console.error("Error updating lastSeen:", error);
+      }
     });
 
     // --- WebRTC Signaling ---
@@ -89,6 +97,19 @@ export function initializeSocket(server, allowedOrigins) {
       const receiverSocketId = getReceiverSocketId(to);
       if (receiverSocketId) {
         io.to(receiverSocketId).emit("stop-typing", { from: userId });
+      }
+    });
+
+    // --- Group Events ---
+    socket.on("join:group", (groupId) => {
+      socket.join(groupId);
+      // console.log(`User ${userId} joined group room ${groupId}`);
+    });
+
+    socket.on("join:groups", (groupIds) => {
+      if (Array.isArray(groupIds)) {
+        groupIds.forEach(id => socket.join(id));
+        // console.log(`User ${userId} joined group rooms:`, groupIds);
       }
     });
   });

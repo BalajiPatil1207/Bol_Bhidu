@@ -13,6 +13,7 @@ import { initCronJobs } from "./lib/cron.js";
 
 import authRoutes from "./routes/auth.js";
 import messageRoutes from "./routes/message.js";
+import groupRoutes from "./routes/group.js";
 
 dotenv.config();
 initCronJobs();
@@ -63,6 +64,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/message", messageRoutes);
+app.use("/api/groups", groupRoutes);
 
 if (ENV.NODE_ENV === "production") {
     const frontendDistPath = path.join(__dirname, "../frontend/dist");

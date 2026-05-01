@@ -22,6 +22,15 @@ function ActiveTabSwitch() {
       >
         Contacts
       </button>
+
+      <button
+        onClick={() => setActiveTab("groups")}
+        className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition-all ${
+          activeTab === "groups" ? "bg-[var(--accent-color)] text-white shadow-md" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"
+        }`}
+      >
+        Groups
+      </button>
     </div>
   );
 }

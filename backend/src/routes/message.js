@@ -5,7 +5,10 @@ import {
   getChatPartners, 
   getMessagesByUserId, 
   sendMessage,
-  markMessagesAsSeen
+  markMessagesAsSeen,
+  toggleReaction,
+  editMessage,
+  deleteMessage
 } from "../controllers/message.controller.js";
 
 const router = express.Router();
@@ -16,5 +19,8 @@ router.get("/:id", authenticateToken, getMessagesByUserId);
 
 router.post("/send/:id", authenticateToken, sendMessage);
 router.put("/seen/:id", authenticateToken, markMessagesAsSeen);
+router.post("/react/:messageId", authenticateToken, toggleReaction);
+router.put("/edit/:messageId", authenticateToken, editMessage);
+router.delete("/delete/:messageId", authenticateToken, deleteMessage);
 
 export default router;
