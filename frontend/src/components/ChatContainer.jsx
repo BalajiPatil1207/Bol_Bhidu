@@ -52,10 +52,10 @@ function ChatContainer() {
                 className={`flex w-full ${msg.senderId === authUser._id ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-lg px-3 py-1.5 shadow-md relative ${
+                  className={`max-w-[85%] rounded-lg px-3 py-1.5 shadow-sm relative ${
                     msg.senderId === authUser._id
-                      ? "bg-[#005c4b] text-[#e9edef]"
-                      : "bg-[#202c33] text-[#e9edef]"
+                      ? "bg-[var(--accent-color)] text-white"
+                      : "bg-[var(--bg-elevated)] text-[var(--text-main)]"
                   }`}
                 >
                   {msg.image && (

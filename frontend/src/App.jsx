@@ -20,9 +20,17 @@ function App() {
     handleCallEnded 
   } = useCallStore();
 
+  const { activeTab, theme, setTheme } = useChatStore();
+
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    // Initialize theme
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [checkAuth, theme]);
 
   useEffect(() => {
     if (!socket) return;

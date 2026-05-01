@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { LogOutIcon, VolumeOffIcon, Volume2Icon } from "lucide-react";
+import { LogOutIcon, VolumeOffIcon, Volume2Icon, Moon, Sun } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
@@ -7,10 +7,14 @@ const mouseClickSound = new Audio("/sounds/mouse-click.mp3");
 
 function ProfileHeader({ isFullView = false }) {
   const { logout, authUser, updateProfile } = useAuthStore();
-  const { isSoundEnabled, toggleSound } = useChatStore();
+  const { isSoundEnabled, toggleSound, theme, setTheme } = useChatStore();
   const [selectedImg, setSelectedImg] = useState(null);
 
   const fileInputRef = useRef(null);
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -28,7 +32,7 @@ function ProfileHeader({ isFullView = false }) {
 
   if (isFullView) {
     return (
-      <div className="flex flex-col h-full bg-[#111b21] animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col h-full bg-[var(--bg-surface)] animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="glass-header px-4 py-8 flex flex-col items-center gap-6">
           <div className="relative group">
             <div className={`size-32 rounded-full overflow-hidden border-4 border-emerald-500/20 shadow-2xl relative`}>
@@ -49,8 +53,8 @@ function ProfileHeader({ isFullView = false }) {
           </div>
 
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-white tracking-tight">{authUser.fullName}</h2>
-            <p className="text-emerald-500 text-sm font-medium mt-1">Available</p>
+            <h2 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">{authUser.fullName}</h2>
+            <p className="text-[var(--accent-color)] text-sm font-medium mt-1">Available</p>
           </div>
 
           <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
@@ -97,10 +101,10 @@ function ProfileHeader({ isFullView = false }) {
   }
 
   return (
-    <div className="p-4 border-b border-white/5 bg-[#111b21] glass-header">
+    <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-surface)] glass-header">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="size-12 rounded-full overflow-hidden border-2 border-white/5 relative">
+          <div className="size-12 rounded-full overflow-hidden border-2 border-[var(--border-color)] relative">
             <img
               src={selectedImg || authUser.profilePic || "/avatar.png"}
               alt="User"
@@ -109,16 +113,23 @@ function ProfileHeader({ isFullView = false }) {
           </div>
 
           <div>
-            <h3 className="text-slate-100 font-bold text-sm max-w-[140px] truncate tracking-tight">
+            <h3 className="text-[var(--text-main)] font-bold text-sm max-w-[140px] truncate tracking-tight">
               {authUser.fullName}
             </h3>
-            <p className="text-[#00a884] text-[10px] font-bold uppercase tracking-widest">Online</p>
+            <p className="text-[var(--accent-color)] text-[10px] font-bold uppercase tracking-widest">Online</p>
           </div>
         </div>
 
         <div className="flex gap-2 items-center">
           <button
-            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
+            onClick={toggleTheme}
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 rounded-xl transition-all"
+            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          >
+            {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+          </button>
+          <button
+            className="p-2 text-[var(--text-muted)] hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
             onClick={logout}
             title="Logout"
           >

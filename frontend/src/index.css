@@ -1,66 +1,118 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #00a884;
-  --color-brand-secondary: #53bdeb;
-  --color-dark-bg: #0b141a;
-  --color-dark-surface: #111b21;
-  --color-dark-elevated: #202c33;
+  --color-brand-primary: #f97316; /* Orange 500 */
+  --color-brand-secondary: #fb923c; /* Orange 400 */
 }
 
-@property --border-angle {
-  inherits: false;
-  initial-value: 0deg;
-  syntax: "<angle>";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Light Theme (Default) */
+  --bg-main: #ffffff;
+  --bg-surface: #f8fafc;
+  --bg-elevated: #f1f5f9;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --accent-color: #f97316;
+  --accent-hover: #ea580c;
+}
+
+.dark {
+  /* Dark Theme */
+  --bg-main: #0b141a;
+  --bg-surface: #111b21;
+  --bg-elevated: #202c33;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.05);
+  --accent-color: #f97316;
+  --accent-hover: #fb923c;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+    background-color: var(--bg-surface);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
   }
   
   .glass-header {
-    @apply bg-[#111b21]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-40;
+    background-color: var(--bg-surface);
+    opacity: 0.95;
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 40;
   }
 
   .glass-navbar {
-    @apply bg-[#111b21]/90 backdrop-blur-xl border-t border-white/5 sticky bottom-0 z-40;
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    background-color: var(--bg-surface);
+    opacity: 0.95;
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-color);
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
   }
 }
 
 .input {
-  @apply w-full bg-slate-800/50 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all outline-none;
+  @apply w-full bg-transparent border rounded-xl py-2.5 pl-10 pr-4 outline-none transition-all;
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+.input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
 }
 
 .auth-input-icon {
-  @apply absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 size-5;
+  @apply absolute left-3.5 top-1/2 -translate-y-1/2 size-5 transition-colors;
+  color: var(--text-muted);
 }
 
 .auth-input-label {
-  @apply block text-sm font-semibold text-slate-400 mb-2;
+  @apply block text-sm font-semibold mb-2;
+  color: var(--text-muted);
 }
 
 .auth-badge {
-  @apply inline-flex items-center px-4 py-1.5 text-[10px] uppercase tracking-wider font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20;
+  @apply inline-flex items-center px-4 py-1.5 text-[10px] uppercase tracking-wider font-bold rounded-full border;
+  background-color: rgba(249, 115, 22, 0.1);
+  color: var(--accent-color);
+  border-color: rgba(249, 115, 22, 0.2);
 }
 
 .auth-btn {
-  @apply w-full bg-emerald-500 text-white rounded-xl py-3 font-semibold shadow-lg shadow-emerald-500/20
-  hover:bg-emerald-600 hover:shadow-emerald-500/40 active:scale-[0.98] transition-all;
+  @apply w-full text-white rounded-xl py-3 font-semibold shadow-lg transition-all active:scale-[0.98];
+  background-color: var(--accent-color);
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+}
+
+.auth-btn:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 20px 25px -5px rgba(249, 115, 22, 0.4);
 }
 
 .auth-link {
-  @apply px-4 py-2 inline-block bg-white/5 rounded-xl text-slate-400
-  hover:text-emerald-400 hover:bg-white/10 text-sm transition-all;
+  @apply px-4 py-2 inline-block rounded-xl text-sm transition-all;
+  background-color: var(--bg-elevated);
+  color: var(--text-muted);
+}
+
+.auth-link:hover {
+  color: var(--accent-color);
+  background-color: var(--bg-surface);
 }
 
 /* Scrollbar styling */
@@ -73,9 +125,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/5 rounded-full;
+  background-color: var(--border-color);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/10;
+  background-color: var(--text-muted);
 }

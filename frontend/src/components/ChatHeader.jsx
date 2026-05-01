@@ -33,13 +33,13 @@ function ChatHeader() {
         {/* Mobile Back Button */}
         <button
           onClick={() => setSelectedUser(null)}
-          className="md:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
+          className="md:hidden p-2 -ml-2 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
         >
           <ArrowLeft className="size-6" />
         </button>
 
         <div className="relative group">
-          <div className="size-11 rounded-full overflow-hidden border-2 border-emerald-500/20 shadow-lg">
+          <div className="size-11 rounded-full overflow-hidden border-2 border-[var(--accent-color)]/20 shadow-lg">
             <img 
               src={selectedUser.profilePic || "/avatar.png"} 
               alt={selectedUser.fullName} 
@@ -47,20 +47,20 @@ function ChatHeader() {
             />
           </div>
           {isOnline && (
-            <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-[#00a884] border-2 border-[#111b21] rounded-full" />
+            <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-[var(--accent-color)] border-2 border-[var(--bg-surface)] rounded-full" />
           )}
         </div>
 
         <div>
-          <h3 className="text-slate-100 font-bold text-sm tracking-tight leading-none mb-1.5">
+          <h3 className="text-[var(--text-main)] font-bold text-sm tracking-tight leading-none mb-1.5">
             {selectedUser.fullName}
           </h3>
           {isTyping ? (
-            <p className="text-[#00a884] text-[10px] font-bold uppercase tracking-widest animate-pulse">
+            <p className="text-[var(--accent-color)] text-[10px] font-bold uppercase tracking-widest animate-pulse">
               Typing...
             </p>
           ) : (
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+            <p className="text-[var(--text-muted)] text-[10px] font-bold uppercase tracking-widest">
               {isOnline ? "Online" : "Offline"}
             </p>
           )}
@@ -72,25 +72,25 @@ function ChatHeader() {
         <div className="flex items-center space-x-1">
           <button
             onClick={() => handleCallUser(selectedUser._id, "audio")}
-            className="p-2.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
+            className="p-2.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 rounded-full transition-all"
             title="Audio Call"
           >
             <Phone className="size-5" />
           </button>
           <button
             onClick={() => handleCallUser(selectedUser._id, "video")}
-            className="p-2.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
+            className="p-2.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 rounded-full transition-all"
             title="Video Call"
           >
             <Video className="size-5" />
           </button>
         </div>
 
-        <div className="hidden md:block w-[1px] h-6 bg-white/5 mx-1" />
+        <div className="hidden md:block w-[1px] h-6 bg-[var(--border-color)] mx-1" />
 
         <button 
           onClick={() => setSelectedUser(null)}
-          className="hidden md:flex p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition-all"
+          className="hidden md:flex p-2 text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-elevated)] rounded-full transition-all"
         >
           <XIcon className="size-5" />
         </button>

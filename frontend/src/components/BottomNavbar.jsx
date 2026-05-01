@@ -26,15 +26,15 @@ function BottomNavbar() {
               setSelectedUser(null);
             }}
             className={`flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-300 ${
-              isActive ? "text-[#00a884]" : "text-[#8696a0]"
+              isActive ? "text-[var(--accent-color)]" : "text-[var(--text-muted)]"
             }`}
           >
             <div className={`p-1 rounded-full transition-all duration-300 ${
-              isActive ? "bg-[#00a884]/10 shadow-lg shadow-[#00a884]/5 scale-110" : ""
+              isActive ? "bg-[var(--accent-color)]/10 shadow-lg shadow-[var(--accent-color)]/5 scale-110" : ""
             }`}>
-              <Icon className={`size-6 ${isActive ? "fill-[#00a884]/10" : ""}`} />
+              <Icon className={`size-6 ${isActive ? "fill-[var(--accent-color)]/10" : ""}`} />
             </div>
-            <span className={`text-[10px] font-semibold tracking-wide uppercase transition-all duration-300 ${
+            <span className={`text-[10px] font-bold tracking-wider uppercase transition-all duration-300 ${
               isActive ? "opacity-100 translate-y-0" : "opacity-60"
             }`}>
               {tab.label}

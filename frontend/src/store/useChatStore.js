@@ -9,6 +9,17 @@ export const useChatStore = create((set, get) => ({
   messages: [],
   activeTab: "chats",
   unreadCounts: {},
+  theme: localStorage.getItem("chat-theme") || "dark",
+
+  setTheme: (theme) => {
+    localStorage.setItem("chat-theme", theme);
+    set({ theme });
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  },
 
   toggleSound: () => {
     localStorage.setItem("isSoundEnabled", !get().isSoundEnabled);

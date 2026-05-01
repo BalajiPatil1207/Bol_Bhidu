@@ -19,9 +19,9 @@ function ChatPage() {
   }, [subscribeToMessages, unsubscribeFromMessages]);
 
   return (
-    <div className="h-[calc(100vh-2rem)] w-full max-w-6xl mx-auto overflow-hidden bg-[#0b141a] md:rounded-2xl shadow-2xl flex flex-col md:flex-row border border-white/5">
+    <div className="h-[100dvh] md:h-[calc(100vh-4rem)] w-full max-w-6xl mx-auto overflow-hidden bg-[var(--bg-main)] md:rounded-2xl shadow-2xl flex flex-col md:flex-row border border-[var(--border-color)]">
       {/* SIDEBAR / MOBILE LIST */}
-      <div className={`flex-1 md:flex-none md:w-[380px] flex-col border-r border-white/5 bg-[#111b21] transition-all duration-300 ${selectedUser ? "hidden md:flex" : "flex"}`}>
+      <div className={`flex-1 md:flex-none md:w-[380px] flex-col border-r border-[var(--border-color)] bg-[var(--bg-surface)] transition-all duration-300 ${selectedUser ? "hidden md:flex" : "flex"}`}>
         
         {/* DESKTOP HEADER & TABS */}
         <div className="hidden md:block">
@@ -56,7 +56,7 @@ function ChatPage() {
       </div>
 
       {/* CHAT AREA */}
-      <div className={`flex-1 flex flex-col bg-[#0b141a] relative ${!selectedUser ? "hidden md:flex" : "flex"}`}>
+      <div className={`flex-1 flex flex-col bg-[var(--bg-main)] relative ${!selectedUser ? "hidden md:flex" : "flex"}`}>
         {selectedUser ? (
           <ChatContainer />
         ) : (

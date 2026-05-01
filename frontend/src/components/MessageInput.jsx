@@ -14,7 +14,7 @@ function MessageInput() {
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  const { sendMessage, isSoundEnabled, sendTypingStatus, selectedUser } = useChatStore();
+  const { sendMessage, isSoundEnabled, sendTypingStatus, selectedUser, theme } = useChatStore();
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -95,10 +95,10 @@ function MessageInput() {
       )}
 
       <form onSubmit={handleSendMessage} className="flex items-end gap-2.5 max-w-5xl mx-auto">
-        <div className="flex-1 flex items-center gap-1.5 bg-[#202c33] rounded-[28px] px-2.5 py-1.5 md:px-4 min-h-[52px] relative shadow-lg ring-1 ring-white/5 focus-within:ring-emerald-500/30 transition-all">
+        <div className="flex-1 flex items-center gap-1.5 bg-[var(--bg-elevated)] rounded-[28px] px-2.5 py-1.5 md:px-4 min-h-[52px] relative shadow-lg ring-1 ring-[var(--border-color)] focus-within:ring-[var(--accent-color)]/30 transition-all">
           <button
             type="button"
-            className={`p-2 rounded-full transition-all duration-300 ${showEmojiPicker ? "bg-emerald-500/10 text-emerald-500 scale-110" : "text-slate-400 hover:text-slate-200"}`}
+            className={`p-2 rounded-full transition-all duration-300 ${showEmojiPicker ? "text-[var(--accent-color)] scale-110" : "text-[var(--text-muted)] hover:text-[var(--text-main)]"}`}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
             <Smile className="size-6" />
@@ -109,7 +109,7 @@ function MessageInput() {
               <div className="shadow-2xl rounded-2xl overflow-hidden glass-card border-none">
                 <EmojiPicker 
                   onEmojiClick={onEmojiClick} 
-                  theme="dark"
+                  theme={theme === "dark" ? "dark" : "light"}
                   skinTonesDisabled
                   searchDisabled={false}
                   width={320}
@@ -121,7 +121,7 @@ function MessageInput() {
 
           <button
             type="button"
-            className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full transition-all"
+            className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-full transition-all"
             onClick={() => fileInputRef.current?.click()}
           >
             <ImageIcon className="size-6" />
@@ -131,7 +131,7 @@ function MessageInput() {
             type="text"
             value={text}
             onChange={handleInputChange}
-            className="flex-1 bg-transparent border-none text-slate-100 placeholder-slate-500 focus:ring-0 text-[16px] outline-none py-2"
+            className="flex-1 bg-transparent border-none text-[var(--text-main)] placeholder-[var(--text-muted)] focus:ring-0 text-[16px] outline-none py-2"
             placeholder="Type a message..."
           />
 
@@ -147,7 +147,7 @@ function MessageInput() {
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className="size-[52px] bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center transition-all shadow-xl shadow-emerald-500/20 active:scale-90 disabled:bg-slate-700 disabled:text-slate-500 disabled:shadow-none shrink-0"
+          className="size-[52px] bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white rounded-full flex items-center justify-center transition-all shadow-xl shadow-[var(--accent-color)]/20 active:scale-90 disabled:bg-[var(--bg-elevated)] disabled:text-[var(--text-muted)] disabled:shadow-none shrink-0"
         >
           <SendIcon className={`size-5 ml-0.5 transition-transform ${text.trim() || imagePreview ? "translate-x-0.5 -translate-y-0.5 rotate-[45deg]" : ""}`} />
         </button>
