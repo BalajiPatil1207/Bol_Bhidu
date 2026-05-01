@@ -20,6 +20,9 @@ initCronJobs();
 const app = express();
 const server = http.createServer(app);
 
+// Trust proxy is required for secure cookies to work on platforms like Render/Vercel
+app.set("trust proxy", 1);
+
 const PORT = ENV.PORT || 3000;
 const __dirname = path.resolve();
 
@@ -36,19 +39,10 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log(`CORS Blocked: Origin "${origin}" not in allowed list.`);
-        // For development, we allow it but log the mismatch
-        callback(null, true);
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   })
 );
 
