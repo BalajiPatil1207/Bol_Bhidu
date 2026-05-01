@@ -31,6 +31,8 @@ const allowedOrigins = [
   ENV.CLIENT_URL,
   "https://chat-application-two-pi.vercel.app",
   "https://chat-application-evuqi5lu6-balaji-patil-1207s-projects.vercel.app",
+  "https://chat-application-git-main-balaji-patil-1207s-projects.vercel.app",
+  /https:\/\/chat-application-.*\.vercel\.app$/, // Allows any Vercel preview/branch URL
   "http://localhost:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5173",
