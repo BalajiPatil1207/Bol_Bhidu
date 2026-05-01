@@ -7,6 +7,17 @@ outgoingSound.loop = true;
 const incomingSound = new Audio("/sounds/ringtone.mp3");
 incomingSound.loop = true;
 
+// Helper to safely play audio and handle missing files
+const safePlay = (audio) => {
+  if (!audio) return;
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      console.warn("Audio play blocked or file missing. Please ensure /public/sounds/ exists.", error.message);
+    });
+  }
+};
+
 export const useCallStore = create((set, get) => ({
   localStream: null,
   remoteStream: null,
@@ -49,7 +60,7 @@ export const useCallStore = create((set, get) => ({
 
     // Start outgoing ring
     outgoingSound.currentTime = 0;
-    outgoingSound.play().catch(e => console.log("Audio play failed:", e));
+    safePlay(outgoingSound);
 
     // Set remote user info from current chat selection
     const { selectedUser } = (await import("./useChatStore")).useChatStore.getState();
@@ -106,7 +117,7 @@ export const useCallStore = create((set, get) => ({
     
     // Start incoming ringtone
     incomingSound.currentTime = 0;
-    incomingSound.play().catch(e => console.log("Audio play failed:", e));
+    safePlay(incomingSound);
 
     set({ 
       incomingCall: data, 
