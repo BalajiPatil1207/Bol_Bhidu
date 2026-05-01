@@ -38,21 +38,25 @@ function CallOverlay() {
     <div className="fixed inset-0 z-[110] bg-[#0b141a] flex flex-col items-center justify-center">
       {/* Background - Remote Video or Avatar */}
       <div className="absolute inset-0 w-full h-full bg-slate-900 overflow-hidden">
-        {callType === "video" && remoteStream ? (
+        {/* Remote Stream (Audio/Video) */}
+        {remoteStream && (
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover ${callType === "audio" ? "hidden" : "block"}`}
           />
-        ) : (
+        )}
+
+        {/* Placeholder for Audio Call or Missing Video */}
+        {(callType === "audio" || !remoteStream) && (
           <div className="w-full h-full flex flex-col items-center justify-center bg-[#111b21]">
             <div className="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-white/5 shadow-2xl">
                 <img src={remoteUser?.profilePic || "/avatar.png"} alt="User" className="w-full h-full object-cover" />
             </div>
             <h2 className="text-3xl font-bold text-white">{remoteUser?.fullName}</h2>
-            <p className="text-slate-400 mt-2 text-lg animate-pulse">
-                {callStatus === "ringing" ? "Ringing..." : "Active Call"}
+            <p className="text-[var(--accent-color)] mt-2 text-lg animate-pulse font-bold tracking-widest uppercase">
+                {callStatus === "ringing" ? "Ringing..." : "In Call"}
             </p>
           </div>
         )}
