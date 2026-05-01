@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { LogOutIcon, VolumeOffIcon, Volume2Icon, Moon, Sun } from "lucide-react";
+import { LogOutIcon, VolumeOffIcon, Volume2Icon, Moon, Sun, User } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
