@@ -2,6 +2,11 @@ import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 import toast from "react-hot-toast";
 
+const outgoingSound = new Audio("/sounds/calling.mp3");
+outgoingSound.loop = true;
+const incomingSound = new Audio("/sounds/ringtone.mp3");
+incomingSound.loop = true;
+
 export const useCallStore = create((set, get) => ({
   localStream: null,
   remoteStream: null,
@@ -41,6 +46,10 @@ export const useCallStore = create((set, get) => ({
     console.log(`[CallStore] Initiating ${type} call to ${to}`);
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
+
+    // Start outgoing ring
+    outgoingSound.currentTime = 0;
+    outgoingSound.play().catch(e => console.log("Audio play failed:", e));
 
     // Set remote user info from current chat selection
     const { selectedUser } = (await import("./useChatStore")).useChatStore.getState();
@@ -86,6 +95,7 @@ export const useCallStore = create((set, get) => ({
 
       set({ peer });
     } catch (error) {
+      outgoingSound.pause();
       console.error("[CallStore] Failed to start call:", error);
       toast.error("Could not access camera/microphone");
     }
@@ -93,6 +103,11 @@ export const useCallStore = create((set, get) => ({
 
   handleIncomingCall: (data) => {
     console.log("[CallStore] Incoming call from:", data.from);
+    
+    // Start incoming ringtone
+    incomingSound.currentTime = 0;
+    incomingSound.play().catch(e => console.log("Audio play failed:", e));
+
     set({ 
       incomingCall: data, 
       callStatus: "receiving", 
@@ -106,6 +121,9 @@ export const useCallStore = create((set, get) => ({
     console.log("[CallStore] Accepting call from:", incomingCall?.from);
     const socket = useAuthStore.getState().socket;
     if (!incomingCall || !socket) return;
+
+    // Stop incoming ringtone
+    incomingSound.pause();
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -157,6 +175,10 @@ export const useCallStore = create((set, get) => ({
 
   handleCallAccepted: async ({ ans }) => {
     const { peer } = get();
+    
+    // Stop outgoing ring
+    outgoingSound.pause();
+
     if (peer) {
       await peer.setRemoteDescription(new RTCSessionDescription(ans));
       set({ callStatus: "active" });
@@ -179,6 +201,10 @@ export const useCallStore = create((set, get) => ({
     const { localStream, peer, incomingCall, isCalling, remoteUser } = get();
     const socket = useAuthStore.getState().socket;
     
+    // Stop all sounds
+    outgoingSound.pause();
+    incomingSound.pause();
+
     // Notify other party if in a call
     const otherPartyId = incomingCall?.from || remoteUser?._id || (isCalling && useAuthStore.getState().selectedUser?._id);
     if (socket && otherPartyId) {
@@ -208,6 +234,11 @@ export const useCallStore = create((set, get) => ({
 
   handleCallEnded: () => {
     const { localStream, peer } = get();
+    
+    // Stop all sounds
+    outgoingSound.pause();
+    incomingSound.pause();
+
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
     if (peer) peer.close();
 

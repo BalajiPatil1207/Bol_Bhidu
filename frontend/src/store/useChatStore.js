@@ -87,12 +87,14 @@ export const useChatStore = create((set, get) => ({
       createdAt: new Date().toISOString(),
       isOptimistic: true,
     };
-    // immediately update the ui by adding the message
+    
+    // Update messages
     set({ messages: [...messages, optimisticMessage] });
 
     // --- SORTING: Move selected user to top ---
-    const updatedChats = chats.filter((chat) => chat._id !== selectedUser._id);
-    set({ chats: [selectedUser, ...updatedChats] });
+    const otherChats = chats.filter((chat) => chat._id !== selectedUser._id);
+    const updatedSelectedUser = { ...selectedUser, lastMessageTime: new Date().toISOString() };
+    set({ chats: [updatedSelectedUser, ...otherChats] });
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
@@ -101,7 +103,6 @@ export const useChatStore = create((set, get) => ({
         messages: get().messages.map((message) => (message._id === tempId ? savedMessage : message)),
       });
     } catch (error) {
-      // remove optimistic message on failure
       set({ messages: messages });
       toast.error(getErrorMessage(error));
     }
@@ -110,8 +111,12 @@ export const useChatStore = create((set, get) => ({
   markMessagesAsSeen: async (partnerId) => {
     try {
       await axiosInstance.put(`/messages/seen/${partnerId}`);
-      // Logically, we don't need to update our own messages here
-      // because we are marking someone ELSE's messages as seen.
+      // Clear unread count in UI
+      set((state) => ({
+        chats: state.chats.map((chat) => 
+          chat._id === partnerId ? { ...chat, unreadCount: 0 } : chat
+        ),
+      }));
     } catch (error) {
       console.error("Error marking messages as seen:", error);
     }
@@ -142,32 +147,38 @@ export const useChatStore = create((set, get) => ({
     socket.on("newMessage", (newMessage) => {
       const { selectedUser, isSoundEnabled, chats, markMessagesAsSeen } = get();
       
-      // --- SORTING: Move sender to top ---
       const senderId = newMessage.senderId;
-      const otherUser = chats.find((chat) => chat._id === senderId);
+      const isFromSelectedUser = selectedUser && senderId === selectedUser._id;
 
-      if (otherUser) {
-        const filteredChats = chats.filter((chat) => chat._id !== senderId);
-        set({ chats: [otherUser, ...filteredChats] });
+      // --- SORTING & UNREAD COUNT ---
+      const existingChat = chats.find((chat) => chat._id === senderId);
+      const otherChats = chats.filter((chat) => chat._id !== senderId);
+
+      let updatedChat;
+      if (existingChat) {
+        updatedChat = { 
+          ...existingChat, 
+          lastMessage: newMessage.text || "Image", 
+          lastMessageTime: newMessage.createdAt,
+          unreadCount: isFromSelectedUser ? 0 : (existingChat.unreadCount || 0) + 1
+        };
+      } else {
+        // If it's a brand new chat partner we didn't have in the list yet
+        updatedChat = {
+          _id: senderId,
+          fullName: "New Message", // Will be refreshed on next fetch or handled by fetch logic
+          lastMessage: newMessage.text || "Image",
+          lastMessageTime: newMessage.createdAt,
+          unreadCount: 1
+        };
       }
 
-      // --- UNREAD COUNT & MESSAGE LIST ---
-      const isMessageSentFromSelectedUser = selectedUser && senderId === selectedUser._id;
-      
-      if (isMessageSentFromSelectedUser) {
-        const currentMessages = get().messages;
-        set({ messages: [...currentMessages, newMessage] });
-        
-        // Mark as seen immediately if chat is open
+      set({ chats: [updatedChat, ...otherChats] });
+
+      // --- MESSAGE LIST ---
+      if (isFromSelectedUser) {
+        set({ messages: [...get().messages, newMessage] });
         markMessagesAsSeen(senderId);
-      } else {
-        // Increment unread count if not selected
-        set((state) => ({
-          unreadCounts: {
-            ...state.unreadCounts,
-            [senderId]: (state.unreadCounts[senderId] || 0) + 1,
-          },
-        }));
       }
 
       if (isSoundEnabled) {

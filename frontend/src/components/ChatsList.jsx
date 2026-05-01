@@ -53,9 +53,9 @@ function ChatsList() {
 
           <div className="flex flex-col items-end gap-1.5">
             {/* Unread Count Badge */}
-            {unreadCounts[chat._id] > 0 && (
+            {chat.unreadCount > 0 && (
               <div className="bg-[var(--accent-color)] text-white text-[10px] font-black min-w-[22px] h-[22px] px-1 rounded-full flex items-center justify-center shadow-lg shadow-[var(--accent-color)]/20 animate-in zoom-in duration-300">
-                {unreadCounts[chat._id]}
+                {chat.unreadCount}
               </div>
             )}
           </div>

@@ -92,21 +92,71 @@ export const getChatPartners = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
 
-    const messages = await Message.find({
-      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
-    });
-
-    const chatPartnerIds = [
-      ...new Set(
-        messages.map((msg) =>
-          msg.senderId.toString() === loggedInUserId.toString()
-            ? msg.receiverId.toString()
-            : msg.senderId.toString()
-        )
-      ),
-    ];
-
-    const chatPartners = await User.find({ _id: { $in: chatPartnerIds } }).select("-password");
+    const chatPartners = await Message.aggregate([
+      // 1. Find all messages related to the logged-in user
+      {
+        $match: {
+          $or: [
+            { senderId: loggedInUserId },
+            { receiverId: loggedInUserId }
+          ]
+        }
+      },
+      // 2. Sort by time to ensure we get the latest
+      { $sort: { createdAt: -1 } },
+      // 3. Group by the "other" user
+      {
+        $group: {
+          _id: {
+            $cond: [
+              { $eq: ["$senderId", loggedInUserId] },
+              "$receiverId",
+              "$senderId"
+            ]
+          },
+          lastMessage: { $first: "$text" },
+          lastMessageTime: { $first: "$createdAt" },
+          unreadCount: {
+            $sum: {
+              $cond: [
+                { 
+                  $and: [
+                    { $eq: ["$receiverId", loggedInUserId] },
+                    { $eq: ["$isSeen", false] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      // 4. Join with User collection to get names/pics
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userDetails"
+        }
+      },
+      // 5. Clean up the output
+      { $unwind: "$userDetails" },
+      {
+        $project: {
+          _id: 1,
+          lastMessage: 1,
+          lastMessageTime: 1,
+          unreadCount: 1,
+          fullName: "$userDetails.fullName",
+          profilePic: "$userDetails.profilePic",
+          email: "$userDetails.email"
+        }
+      },
+      // 6. Final Sort by latest activity
+      { $sort: { lastMessageTime: -1 } }
+    ]);
 
     return handle200(res, chatPartners, "Chat partners fetched successfully");
   } catch (error) {
