@@ -98,9 +98,13 @@ function ChatContainer() {
                         href={msg.file} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 bg-black/10 p-3 rounded-lg mb-1 hover:bg-black/20 transition-colors border border-white/10"
+                        className={`flex items-center gap-3 p-3 rounded-lg mb-1 transition-colors border ${
+                            isMe 
+                                ? "bg-white/10 border-white/20 hover:bg-white/20" 
+                                : "bg-[var(--bg-main)] border-[var(--border-color)] hover:bg-[var(--bg-surface)]"
+                        }`}
                     >
-                        <div className="p-2 bg-[var(--accent-color)] rounded-lg text-white">
+                        <div className="p-2 bg-[var(--accent-color)] rounded-lg text-white shrink-0">
                             <FileText className="size-6" />
                         </div>
                         <div className="min-w-0 flex-1">
