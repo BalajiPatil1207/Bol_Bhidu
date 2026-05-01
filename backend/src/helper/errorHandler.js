@@ -9,6 +9,16 @@ export const handle401 = (res, message = "Unauthorized") => {
 };
 
 /**
+ * 🔴 403
+ */
+export const handle403 = (res, message = "Forbidden") => {
+  return res.status(403).json({
+    status: false,
+    errors: { message }
+  });
+};
+
+/**
  * 🔴 404
  */
 export const handle404 = (res, message = "Resource not found") => {

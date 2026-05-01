@@ -65,6 +65,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/group", groupRoutes);
 
 if (ENV.NODE_ENV === "production") {
     const frontendDistPath = path.join(__dirname, "../frontend/dist");

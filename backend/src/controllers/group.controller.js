@@ -94,7 +94,7 @@ export const getGroupMessages = async (req, res) => {
 
 export const sendGroupMessage = async (req, res) => {
   try {
-    const { text, image, audio } = req.body;
+    const { text, image, audio, file } = req.body;
     const { groupId } = req.params;
     const senderId = req.user._id;
 
